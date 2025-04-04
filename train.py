@@ -23,7 +23,6 @@ timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 @rank_zero_only
 def setup_experiment_dir():
-    # os.makedirs(f"generations/{timestamp}", exist_ok=True)
     os.makedirs(f"weights/{timestamp}", exist_ok=True)
     with open(f"weights/{timestamp}/config.json", "w") as f:
         f.write(config.to_json())
@@ -40,14 +39,13 @@ checkpoint_callback = ModelCheckpoint(
 
 model = SetFlowModule(config=config)
 dataset = MNISTDataset()
-dataloader = DataLoader(dataset, batch_size=1)
+dataloader = DataLoader(dataset, batch_size=1, num_workers=8)
 
 trainer = pl.Trainer(
     accelerator="gpu",
     devices=10,
-    max_epochs=5,
-    gradient_clip_val=1.0,
-    # precision="full",
+    max_epochs=config.training.epochs,
+    # gradient_clip_val=1.0,
     num_sanity_val_steps=0,
     callbacks=[checkpoint_callback]
 )

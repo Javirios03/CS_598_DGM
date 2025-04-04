@@ -83,7 +83,7 @@ class ODESolver(Solver):
 
         def ode_func(t, x):
             # print("t: ", t)
-            out = self.velocity_model(x=x, t=t.unsqueeze(0), **model_extras)
+            out = self.velocity_model(x=x, t=t, **model_extras)
             # print(out)
             return out
 
