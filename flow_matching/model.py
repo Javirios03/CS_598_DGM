@@ -18,6 +18,8 @@ from torchdiffeq import odeint
 from matplotlib import cm
 import warnings
 
+from hungarian_algorithm import algorithm
+
 warnings.filterwarnings("ignore", category=UserWarning, module='torch')
 
 class Flow(nn.Module):
@@ -34,6 +36,20 @@ class Flow(nn.Module):
 
     def forward(self, pt, t, set_emb, attn_mask=None):
         return self.decoder(pt, t, set_emb)
+
+    def hungarian(self, predicted, target):
+        N, L = predicted.shape
+        distance_dict = {}
+
+        for i in range(N):
+            distance_dict[i] = {}
+            for j in range(N):
+                distance = torch.norm(predicted[i] - target[j], p=2).item()
+                distance_dict[i][j] = distance
+
+        total_distance = algorithm.find_matching(distance_dict, matching_type='min', return_type='total')
+
+        return total_distance
     
     def get_loss(self, x_1, set_emb, attn_mask=None):
         # x_1 = x_1.squeeze(0)
